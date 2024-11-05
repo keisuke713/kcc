@@ -16,11 +16,13 @@ assert() {
     fi
 }
 
+# 加減算
 assert 1 "1"
 assert 10 "10"
+assert 5 "1+2+3-1"
+assert 10 "1+2+3+4"
+assert 1 "2-1"
+assert 1 "2+1-2"
+assert 16 "10+15-9"
 
-// for test
-// docker run --rm -v $HOME/go/src/kcc:/kcc -w /kcc compilerbook make test
-
-// interactive
-// docker run -v $HOME/go/src/kcc:/kcc -w /kcc --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -it compilerbook /bin/bash
+echo OK
