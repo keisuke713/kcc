@@ -4,23 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 )
-
-// 文字列を数値に変換しその数字と桁数を返す
-func strtoi(s string) (int, int) {
-	i := 0
-	j := 0
-	len := len(s)
-	for j < len && 48 <= s[j] && s[j] <= 57 {
-		j++
-	}
-	n, err := strconv.Atoi(s[i:j])
-	if err != nil {
-		log.Fatal("invalid argument")
-	}
-	return n, j
-}
 
 func main() {
 	if len(os.Args) != 2 {
@@ -30,31 +14,29 @@ func main() {
 	expression := os.Args[1]
 	log.Printf("%s", expression)
 
+	token = tokenize(expression)
+
+	// アセンブリ前半部分を出力
 	f, _ := os.Create("tmp.s")
 	// プロローグ
 	fmt.Fprintf(f, ".intel_syntax noprefix\n")
 	fmt.Fprintf(f, ".globl main\n")
 	fmt.Fprintf(f, "main:\n")
 
-	n, cnt := strtoi(expression)
-	fmt.Fprintf(f, "  mov rax, %d\n", n)
-	i := cnt
-	len := len(expression)
-	for i < len {
-		switch expression[i] {
-		case 43:
-			i++
-			n, cnt := strtoi(expression[i:])
-			i += cnt
-			fmt.Fprintf(f, "  add rax, %d\n", n)
-		case 45:
-			i++
-			n, cnt := strtoi(expression[i:])
-			i += cnt
-			fmt.Fprintf(f, "  sub rax, %d\n", n)
-		default:
-			log.Fatal("unexpected character")
+	// 式の最初は数でなければならないので、それをチェックして
+	// 最初のmov命令を出力
+	fmt.Fprintf(f, "	mov rax, %d\n", expect_number())
+
+  	// `+ <数>`あるいは`- <数>`というトークンの並びを消費しつつ
+  	// アセンブリを出力
+	for !at_eof() {
+		if consumes("+") {
+			fmt.Fprintf(f, "	add rax, %d\n", expect_number())
+			continue
 		}
+
+		expect("-")
+		fmt.Fprintf(f, "	sub rax, %d\n", expect_number())
 	}
 	fmt.Fprintf(f, "  ret\n")
 }
