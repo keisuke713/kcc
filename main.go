@@ -12,9 +12,9 @@ func main() {
 	}
 
 	expression := os.Args[1]
-	log.Printf("%s", expression)
 
 	token = tokenize(expression)
+	node := expr()
 
 	// アセンブリ前半部分を出力
 	f, _ := os.Create("tmp.s")
@@ -23,22 +23,10 @@ func main() {
 	fmt.Fprintf(f, ".globl main\n")
 	fmt.Fprintf(f, "main:\n")
 
-	// 式の最初は数でなければならないので、それをチェックして
-	// 最初のmov命令を出力
-	fmt.Fprintf(f, "	mov rax, %d\n", expect_number())
-
-  	// `+ <数>`あるいは`- <数>`というトークンの並びを消費しつつ
-  	// アセンブリを出力
-	for !at_eof() {
-		if consumes("+") {
-			fmt.Fprintf(f, "	add rax, %d\n", expect_number())
-			continue
-		}
-
-		expect("-")
-		fmt.Fprintf(f, "	sub rax, %d\n", expect_number())
-	}
-	fmt.Fprintf(f, "  ret\n")
+	gen(f, node)
+	// 最終的な戻り値をraxにセット
+	fmt.Fprintf(f, "	pop rax\n")
+	fmt.Fprintf(f, "	ret\n")
 }
 
 // for test

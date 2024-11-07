@@ -25,4 +25,12 @@ assert 1 "2-1"
 assert 1 "2+1-2"
 assert 16 "10+15-9"
 
+# 四則演算
+assert 7 "1 + 2 * 3"
+assert 6 "2 * 3"
+assert 9 "1 + 2 * 4"
+assert 4 "2 * 6 / 3"
+assert 7 "2 * 3 + 1"
+assert 8 "2 * ( 3 + 1 )"
+
 echo OK
