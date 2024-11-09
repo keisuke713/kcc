@@ -14,7 +14,7 @@ func main() {
 	expression := os.Args[1]
 
 	token = tokenize(expression)
-	node := expr()
+	nodes := program()
 
 	// アセンブリ前半部分を出力
 	f, _ := os.Create("tmp.s")
@@ -27,10 +27,14 @@ func main() {
 	// 変数 `a` ~ `z` 分のスタック領域を確保
 	fmt.Fprintf(f, "	sub rsp, 208\n")
 
-
-	gen(f, node)
-	// 最終的な戻り値をraxにセット
-	fmt.Fprintf(f, "	pop rax\n")
+	for _, n := range nodes {
+		if n == nil {
+			break
+		}
+		gen(f, n)
+		// 戻り値をraxにセット
+		fmt.Fprintf(f, "	pop rax\n")
+	}
 	// エピローグ
 	fmt.Fprintf(f, "	mov rsp, rbp\n")
 	fmt.Fprintf(f, "	pop rbp\n")

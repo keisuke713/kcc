@@ -34,6 +34,13 @@ func gen(w io.Writer, node *Node) {
 		fmt.Fprintf(w, "	mov [rax], rdi\n")
 		fmt.Fprintf(w, "	push rdi\n")
 		return
+	case NDLVar:
+		genLeftVal(w, node)
+
+		fmt.Fprintf(w, "	pop rax\n")
+		fmt.Fprintf(w, "	mov rax, [rax]\n")
+		fmt.Fprintf(w, "	push rax\n")
+		return
 	}
 
 	gen(w, node.lhs)

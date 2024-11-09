@@ -32,6 +32,22 @@ func newNodeNum(val int) *Node {
 	return &Node{kind: NDNum, val: val}
 }
 
+// program = stmt*
+func program() []*Node {
+	nodes := make([]*Node, 0, 10)
+	for token.kind != TKEOF {
+		nodes = append(nodes, stmt())
+	}
+	return nodes
+}
+
+// stmt = expr ";"
+func stmt() *Node {
+	node := expr()
+	expect(";")
+	return node
+}
+
 // expr = assign
 func expr() *Node {
 	return assign()

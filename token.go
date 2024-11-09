@@ -93,7 +93,7 @@ func tokenize(str string) *Token {
 			continue
 		}
 
-		if (str[p] == '+') || (str[p] == '-' || (str[p] == '*') || (str[p] == '/') || (str[p] == '(') || (str[p] == ')') || (str[p] == '=')) {
+		if (str[p] == '+') || (str[p] == '-' || (str[p] == '*') || (str[p] == '/') || (str[p] == '(') || (str[p] == ')') || (str[p] == '=') || (str[p] == ';')) {
 			cur = newToken(TKReserved, cur, str[p:p+1])
 			p++
 			continue
