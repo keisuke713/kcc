@@ -3,12 +3,36 @@ package main
 import (
 	"io"
 	"fmt"
+	"log"
 )
 
+func genLeftVal(w io.Writer, node *Node) {
+	if node.kind != NDLVar {
+		log.Fatalf("代入の左辺値が変数ではありません")
+	}
+	fmt.Fprintf(w, "	mov rax, rbp\n")
+	fmt.Fprintf(w, "	sub rax, %d\n", node.offset)
+	fmt.Fprintf(w, "	push rax\n")
+}
+
 func gen(w io.Writer, node *Node) {
-	if node.kind == NDNum {
+	if node == nil {
+		return
+	}
+
+	switch node.kind {
+	case NDNum:
 		fmt.Fprintf(w, "	mov rax, %d\n", node.val)
 		fmt.Fprintf(w, "	push rax\n")
+		return
+	case NDAssign:
+		genLeftVal(w, node.lhs)
+		gen(w, node.rhs)
+
+		fmt.Fprintf(w, "	pop rdi\n")
+		fmt.Fprintf(w, "	pop rax\n")
+		fmt.Fprintf(w, "	mov [rax], rdi\n")
+		fmt.Fprintf(w, "	push rdi\n")
 		return
 	}
 

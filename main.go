@@ -18,14 +18,22 @@ func main() {
 
 	// アセンブリ前半部分を出力
 	f, _ := os.Create("tmp.s")
-	// プロローグ
 	fmt.Fprintf(f, ".intel_syntax noprefix\n")
 	fmt.Fprintf(f, ".globl main\n")
 	fmt.Fprintf(f, "main:\n")
+	// プロローグ
+	fmt.Fprintf(f, "	push rbp\n")
+	fmt.Fprintf(f, "	mov rbp, rsp\n")
+	// 変数 `a` ~ `z` 分のスタック領域を確保
+	fmt.Fprintf(f, "	sub rsp, 208\n")
+
 
 	gen(f, node)
 	// 最終的な戻り値をraxにセット
 	fmt.Fprintf(f, "	pop rax\n")
+	// エピローグ
+	fmt.Fprintf(f, "	mov rsp, rbp\n")
+	fmt.Fprintf(f, "	pop rbp\n")
 	fmt.Fprintf(f, "	ret\n")
 }
 

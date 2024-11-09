@@ -11,6 +11,7 @@ type TokenKind int
 const (
     TKReserved TokenKind = iota
     TKNum
+	TKIdent
     TKEOF
 )
 
@@ -59,7 +60,7 @@ func at_eof() bool {
 }
 
 // 新しいトークンを作成してcurに繋げる
-func new_token(kind TokenKind, cur *Token, str string) *Token {
+func newToken(kind TokenKind, cur *Token, str string) *Token {
 	tok := &Token{kind: kind, str: str}
 	cur.next = tok
 	return tok
@@ -92,14 +93,14 @@ func tokenize(str string) *Token {
 			continue
 		}
 
-		if (str[p] == '+') || (str[p] == '-' || (str[p] == '*') || (str[p] == '/') || (str[p] == '(') || (str[p] == ')')) {
-			cur = new_token(TKReserved, cur, str[p:p+1])
+		if (str[p] == '+') || (str[p] == '-' || (str[p] == '*') || (str[p] == '/') || (str[p] == '(') || (str[p] == ')') || (str[p] == '=')) {
+			cur = newToken(TKReserved, cur, str[p:p+1])
 			p++
 			continue
 		}
 
 		if ('0' <= str[p]) && (str[p] <= '9') {
-			cur = new_token(TKNum, cur, "")
+			cur = newToken(TKNum, cur, "")
 			// cur.val = int(str[p] - '0')
 			// p++
 			n, cnt := strtoi(str[p:])
@@ -108,9 +109,15 @@ func tokenize(str string) *Token {
 			continue
 		}
 
+		if 'a' <= str[p] && str[p] <= 'z' {
+			cur = newToken(TKIdent, cur, str[p:p+1])
+			p++
+			continue
+		}
+
 		log.Fatal("トークナイズできません")
 	}
 
-	new_token(TKEOF, cur, "")
+	newToken(TKEOF, cur, "")
 	return head.next
 }

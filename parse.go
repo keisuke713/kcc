@@ -12,6 +12,8 @@ const (
 	NDMul
 	NDDiv
 	NDNum
+	NDAssign
+	NDLVar
 )
 
 type Node struct {
@@ -19,6 +21,7 @@ type Node struct {
 	lhs *Node
 	rhs *Node
 	val int
+	offset int
 }
 
 func newNode(kind NodeKind, lhs *Node, rhs *Node) *Node {
@@ -29,10 +32,21 @@ func newNodeNum(val int) *Node {
 	return &Node{kind: NDNum, val: val}
 }
 
+// expr = assign
 func expr() *Node {
-	return add()
+	return assign()
 }
 
+// assign = add ("=" add)?
+func assign() *Node {
+	node := add()
+	if consumes("=") {
+		node = newNode(NDAssign, node, assign())
+	}
+	return node
+}
+
+// add = mul ("+" mul | "-" mul)*
 func add() *Node {
 	node := mul()
 	for {
@@ -46,6 +60,7 @@ func add() *Node {
 	}
 }
 
+// mul = primary ("*" primary | "/" primary)*
 func mul() *Node {
 	node := primary()
 	for {
@@ -59,7 +74,15 @@ func mul() *Node {
 	}
 }
 
+// primary = num | "(" expr ")" | ident
 func primary() *Node {
+	if token.kind == TKIdent {
+		node := newNode(NDLVar, nil, nil)
+		node.offset = int(token.str[0] - 96) * 8
+		token = token.next
+		return node
+	}
+
 	if consumes("(") {
 		node := expr()
 		expect(")")

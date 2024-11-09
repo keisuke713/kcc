@@ -33,4 +33,10 @@ assert 4 "2 * 6 / 3"
 assert 7 "2 * 3 + 1"
 assert 8 "2 * ( 3 + 1 )"
 
+# 代入
+assert 1 "a = 1"
+assert 1 "a = b = 1"
+assert 8 "a = 2 * ( 3 + 1 )"
+assert 2 "z = 2"
+
 echo OK
